@@ -22,6 +22,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	defer conn.Close()
 	buf := make([]byte, 1024)
 	for {
 		n, fromAddr, err := conn.ReadFromUDP(buf)
