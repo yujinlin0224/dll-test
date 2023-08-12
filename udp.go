@@ -14,23 +14,24 @@ func sendResponse(conn *net.UDPConn, addr *net.UDPAddr, resp string) {
 
 func main() {
 	var err error
-	addr := net.UDPAddr{
+	serverAddr := net.UDPAddr{
 		IP:   net.ParseIP("127.0.0.1"),
 		Port: 4000,
 	}
-	conn, err := net.ListenUDP("udp", &addr)
+	conn, err := net.ListenUDP("udp", &serverAddr)
 	if err != nil {
 		panic(err)
 	}
+	buf := make([]byte, 1024)
 	for {
-		received := make([]byte, 1024)
-		n, remoteAddr, err := conn.ReadFromUDP(received)
+		n, fromAddr, err := conn.ReadFromUDP(buf)
 		if err != nil {
 			fmt.Println(err)
 			continue
 		}
-		resp := fmt.Sprintf("UDP server: received %s form %v", received[:n], remoteAddr)
-		fmt.Println(resp)
-		go sendResponse(conn, remoteAddr, resp)
+		received := string(buf[:n])
+		response := fmt.Sprintf("received %s form %v", received, fromAddr)
+		fmt.Println("UDP server:", response)
+		go sendResponse(conn, fromAddr, response)
 	}
 }
